@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deleted Customers Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: none;
+            margin: 15px;
+        }
+        .header-container {
+            background-color: #FFD700;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #000000;
+            margin: 0;
+            padding: 8px 0;
+        }
+        .icon-group {
+            display: flex;
+            gap: 15px;
+        }
+        .top-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s;
+        }
+        .top-icon:hover {
+            transform: scale(1.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #FFD700;
+            color: black;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .delete-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .delete-icon:hover {
+            opacity: 0.7;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #8beed5;
+            color: #fff;
+            height: 100vh;
+            padding: 15px;
+            transition: transform 0.3s ease;
+            transform: translateX(-250px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border: none;
+            z-index: 1000;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar h2 {
+            text-align: center;
+            color: #070707;
+        }
+        .sidebar a {
+            display: block;
+            color: #353333;
+            border-radius: 8px;
+            padding: 10px;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+        .sidebar a:hover {
+            background-color: #caf7cc;
+        }
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            color: rgb(3, 3, 3);
+            padding: 5px 5px;
+            border: none;
+        }
+        .remaining-days {
+            color: #666;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .search-bar input {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-bar button {
+            padding: 8px 20px;
+            background-color: #FFD700;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+            align-items: center;
+        }
+        .page-button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            color: black;
+        }
+        .page-button:hover {
+            background-color: #FFD700;
+        }
+        .active-page {
+            background-color: #FFD700 !important;
+            font-weight: bold;
+        }
+        .page-button.arrow {
+            padding: 5px 12px;
+            background-color: #f0f0f0;
+        }
+        .page-button.arrow:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .restore-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            margin-right: 10px;
+        }
+        .restore-icon:hover {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <button class="openbtn" onclick="toggleSidebar()">☰</button>
+            <h1>Deleted Customers Data</h1>
+            <div class="icon-group">
+                <a href="dashboard.html" title="Home">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/home.png" class="top-icon" alt="Home">
+                </a>
+                <a href="login.html" title="Logout">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/logout-rounded.png" class="top-icon" alt="Logout">
+                </a>
+            </div>
+        </div>
+        
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="gold.html">Customers</a>
+            <a href="delete.html">Deleted Customers</a>
+            <a href="settings.html">Settings</a>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search any detail...">
+            <button onclick="searchCustomer()">Search</button>
+            <button onclick="exportDeletedData()" style="margin-left: 10px;">Export JSON</button>
+            <div id="pagination" class="pagination"></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Contact No</th>
+                        <th>Location</th>
+                        <th>Occupation</th>
+                        <th>Gender</th>
+                        <th>Purchase Date</th>
+                        <th>Bank</th>
+                        <th>Item</th>
+                        <th>Gross Weight</th>
+                        <th>Net Weight</th>
+                        <th>Amount to Bank</th>
+                        <th>Amount to Customer</th>
+                        <th>Actual Tarugu</th>
+                        <th>Gold After Melt</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customerList">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let deletedCustomers = JSON.parse(localStorage.getItem('deletedCustomers')) || [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            sidebar.classList.toggle('open');
+        }
+
+        function calculateRemainingDays(deletionDate) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const currentDate = new Date();
+            const deletionDateObj = new Date(deletionDate);
+            const diffDays = Math.round(Math.abs((currentDate - deletionDateObj) / oneDay));
+            return 60 - diffDays;
+        }
+
+        function renderCustomers(customers) {
+            const tbody = document.getElementById('customerList');
+            tbody.innerHTML = '';
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedEntries = customers.slice(start, end);
+
+            paginatedEntries.forEach((customer, index) => {
+                const remainingDays = calculateRemainingDays(customer.deletionDate);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${start + index + 1}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.ContactNo}</td>
+                    <td>${customer.location}</td>
+                    <td>${customer.occupation}</td>
+                    <td>${customer.gender}</td>
+                    <td>${new Date(customer.purchaseDate).toLocaleDateString()}</td>
+                    <td>${customer.bank}</td>
+                    <td>${customer.item}</td>
+                    <td>${customer.GrossWeight}</td>
+                    <td>${customer.NetWeight}</td>
+                    <td>${customer.amountPaidToBank}</td>
+                    <td>${customer.amountPaidToCustomer}</td>
+                    <td>${customer.actualTarugu}</td>
+                    <td>${customer.goldAfterMelt}</td>
+                    <td>${customer.documentData ? 
+                        `<button onclick="viewDocument('${customer.document}')">View</button>` : 
+                        'No Document'}</td>
+                    <td>${customer.status}</td>
+                    <td>
+                        <img src="https://img.icons8.com/ios-glyphs/30/228BE6/return.png" 
+                             class="restore-icon" 
+                             onclick="restoreCustomer(${customer.id})"
+                             title="Restore Customer">
+                        <span class="remaining-days">${remainingDays} days left</span>
+                        <img src="https://img.icons8.com/ios-glyphs/30/fa5252/trash.png" 
+                             class="delete-icon" 
+                             onclick="deletePermanently(${customer.id})"
+                             title="Delete Permanently">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePagination(Math.ceil(customers.length / itemsPerPage));
+        }
+
+        // Add this new restore function
+        function restoreCustomer(customerId) {
+            if (confirm('Restore this customer to active records?')) {
+                const deletedCustomers = JSON.parse(localStorage.getItem('deletedCustomers')) || [];
+                const activeCustomers = JSON.parse(localStorage.getItem('customers')) || [];
+                
+                const customerIndex = deletedCustomers.findIndex(c => c.id === customerId);
+                
+                if (customerIndex !== -1) {
+                    const [restoredCustomer] = deletedCustomers.splice(customerIndex, 1);
+                    activeCustomers.unshift(restoredCustomer);
+                    
+                    localStorage.setItem('deletedCustomers', JSON.stringify(deletedCustomers));
+                    localStorage.setItem('customers', JSON.stringify(activeCustomers));
+                    
+                    renderCustomers(deletedCustomers);
+                    alert('Customer restored successfully!');
+                }
+            }
+        }
+
+        function updatePagination(totalPages) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            const prevButton = document.createElement('button');
+            prevButton.className = 'page-button arrow';
+            prevButton.innerHTML = '◀';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => changePage(-1);
+            paginationDiv.appendChild(prevButton);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `page-button ${i === currentPage ? 'active-page' : ''}`;
+                pageButton.textContent = i;
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    renderCustomers(deletedCustomers);
+                };
+                paginationDiv.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.className = 'page-button arrow';
+            nextButton.innerHTML = '▶';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => changePage(1);
+            paginationDiv.appendChild(nextButton);
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(deletedCustomers.length / itemsPerPage);
+            currentPage = Math.max(1, Math.min(totalPages, currentPage + direction));
+            renderCustomers(deletedCustomers);
+        }
+
+        function deletePermanently(customerId) {
+            if (confirm('Permanently delete this customer?')) {
+                let deletedCustomers = JSON.parse(localStorage.getItem('deletedCustomers')) || [];
+                deletedCustomers = deletedCustomers.filter(c => c.id !== customerId);
+                localStorage.setItem('deletedCustomers', JSON.stringify(deletedCustomers));
+                renderCustomers(deletedCustomers);
+            }
+        }
+        function exportDeletedData() {
+            const deleted = JSON.parse(localStorage.getItem('deletedCustomers')) || [];
+            const dataStr = JSON.stringify(deleted, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `deleted_customers_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+
+        function searchCustomer() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = deletedCustomers.filter(customer =>
+                Object.values(customer).some(value =>
+                    String(value).toLowerCase().includes(searchTerm)
+                )
+            );
+            currentPage = 1;
+            renderCustomers(filtered);
+        }
+
+        window.onload = () => {
+            renderCustomers(deletedCustomers);
+        };
+    </script>
+</body>
+</html>

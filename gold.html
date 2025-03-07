@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Customer Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: none;
+            margin: 15px;
+        }
+        .header-container {
+            background-color: #FFD700;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #000000;
+            margin: 0;
+            padding: 8px 0;
+        }
+        .icon-group {
+            display: flex;
+            gap: 15px;
+        }
+        .top-icon {
+            width: 30px;
+            height: 30px;
+            transition: opacity 0.3s;
+        }
+        .top-icon:hover {
+            transform: scale(1.1);
+        }
+        .form-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #customerTable {
+            min-width: 1200px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #FFD700;
+            color: black;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #FFD700;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #cca300;
+        }
+        .editable {
+            cursor: pointer;
+        }
+        .editable:hover {
+            background-color: #f9f9f9;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-bar button {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .search-bar input {
+            padding: 8px;
+            width: 500px;
+            border: 2px solid #0c0c0c;
+            border-radius: 4px;
+        }
+        .filter-section {
+            margin-bottom: 10px;
+        }
+        .filter-section input, .filter-section select {
+            margin: 5px;
+            padding: 6px;
+            width: 150px;
+        }
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+        }
+        .icon-button img {
+            width: 20px;
+            height: 20px;
+        }
+        .icon-button:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1001;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .close-modal {
+            color: white;
+            font-size: 30px;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            cursor: pointer;
+        }
+        .modal-image {
+            max-width: 80vw;
+            max-height: 80vh;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #8beed5;
+            color: #fff;
+            height: 100vh;
+            padding: 15px;
+            transition: transform 0.3s ease;
+            transform: translateX(-250px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border: none;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar h2 {
+            text-align: center;
+            color: #070707;
+        }
+        .sidebar a {
+            display: block;
+            color: #353333;
+            border-radius: 8px;
+            padding: 10px;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+        .sidebar a:hover {
+            background-color: #caf7cc;
+        }
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            color: rgb(3, 3, 3);
+            padding: 5px 5px;
+            border: none;
+        }
+        .openbtn:hover {
+            background-color: transparent !important;
+            transform: none;
+        }
+        .actions-cell {
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            padding: 12px !important;
+        }
+        .action-button {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        .action-icon {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.2s;
+            object-fit: contain;
+        }
+        .action-icon:hover {
+            transform: scale(1.1);
+        }
+        .date-group-header {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #e8f5e9 !important;
+            box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+        }
+        .pagination {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+            align-items: center;
+        }
+        .page-button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .page-button:hover {
+            background-color: #FFD700;
+        }
+        .active-page {
+            background-color: #FFD700 !important;
+            font-weight: bold;
+        }
+        .page-button.arrow {
+            padding: 5px 12px;
+            background-color: #f0f0f0;
+        }
+        .page-button.arrow:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .document-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .doc-popup {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 35px;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1002;
+            min-width: 250px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .doc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .doc-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .remove-doc {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .file-count {
+            margin-left: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .close-docs {
+            position: absolute;
+            right: 5px;
+            top: 2px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        .delete-doc {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            padding: 2px 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .view-doc {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .doc-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .doc-info-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .edit-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.2s;
+        }
+        .editing {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+        }
+        .save-btn .btn-icon:hover {
+            transform: scale(1.1);
+            filter: brightness(0.8);
+        }
+        .cancel-btn .btn-icon:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+        .doc-view-btn {
+            background: none;
+            border: none;
+            padding: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .doc-view-btn:hover {
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .delete-doc:hover {
+            background-color: #ffe5e5;
+        }
+        .view-doc:hover {
+            background-color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <button class="openbtn" onclick="toggleSidebar()">☰</button>
+            <h1>Gold Customer Management</h1>
+            <div class="icon-group">
+                <a href="dashboard.html" title="Home">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/home.png" class="top-icon" alt="Home">
+                </a>
+                <a href="login.html" title="Logout">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/logout-rounded.png" class="top-icon" alt="Logout">
+                </a>
+            </div>
+        </div>
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="gold.html">Edit Customer</a>
+            <a href="delete.html">Deleted Customer</a>
+            <a href="settings.html">Settings</a>
+        </div>
+
+        <!-- Customer Form -->
+        <div class="form-section">
+            <h2>Add New Customer</h2>
+            <label for="customerName">Customer Name:</label>
+            <input type="text" id="customerName" placeholder="Customer Name">
+            
+            <label for="ContactNo">Contact No:</label>
+            <input type="tel" id="ContactNo" placeholder="Contact No">
+            
+            <label for="purchaseDate">Purchase Date:</label>
+            <input type="date" id="purchaseDate">
+            
+            <label for="location">Location:</label>
+            <input type="text" id="location" placeholder="Location">
+            
+            <label for="occupation">Occupation:</label>
+            <input type="text" id="occupation" placeholder="Occupation">
+            
+            <label for="gender">Gender:</label>
+            <select id="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            
+            <label for="bank">Bank:</label>
+            <input type="text" id="bank" placeholder="Bank">
+            
+            <label for="item">Item:</label>
+            <input type="text" id="item" placeholder="Item">
+            
+            <label for="GrossWeight">Gross Weight:</label>
+            <input type="number" id="GrossWeight" placeholder="GrossWeight">
+            
+            <label for="NetWeight">Net Weight:</label>
+            <input type="number" id="NetWeight" placeholder="NetWeight">
+            
+            <label for="amountPaidToBank">Amount Paid to Bank:</label>
+            <input type="number" id="amountPaidToBank" placeholder="Amount Paid to Bank">
+            
+            <label for="amountPaidToCustomer">Amount Paid to Customer:</label>
+            <input type="number" id="amountPaidToCustomer" placeholder="Amount Paid to Customer">
+            
+            <label for="actualTarugu">Actual Tarugu:</label>
+            <input type="number" id="actualTarugu" placeholder="Actual Tarugu">
+            
+            <label for="goldAfterMelt">Gold After Melt:</label>
+            <input type="number" id="goldAfterMelt" placeholder="Gold After Melt">
+            
+            <label for="document">Upload Documents (max 10):</label>
+            <input type="file" id="document" multiple accept="image/*, application/pdf" onchange="validateFiles(this)">
+            <span id="fileCount">0 files selected</span>
+            
+            <label for="status">Status:</label>
+            <select id="status">
+                <option value="Enquiry">Enquiry</option>
+                <option value="Suspect">Suspect</option>
+                <option value="Prospect">Prospect</option>
+                <option value="Leadclosed">Leadclosed</option>
+            </select>
+            
+            <button onclick="addCustomer()">Add Customer</button>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="form-section filter-section">
+            <h2>Filters</h2>
+            <label for="filterName">Name:</label>
+            <input type="text" id="filterName" placeholder="Name" oninput="applyFilters()">
+            
+            <label for="filterPurchaseDate">From Date:</label>
+            <input type="date" id="filterPurchaseDate" oninput="applyFilters()">
+            
+            <label for="filterSellDate">To Date:</label>
+            <input type="date" id="filterSellDate" oninput="applyFilters()">
+            
+            <label for="filterMinAmount">From Amount:</label>
+            <input type="number" id="filterMinAmount" placeholder="Min Amount" oninput="applyFilters()">
+            
+            <label for="filterMaxAmount">To Amount:</label>
+            <input type="number" id="filterMaxAmount" placeholder="Max Amount" oninput="applyFilters()">
+            
+            <label for="filterStatus">Status:</label>
+            <select id="filterStatus" onchange="applyFilters()">
+                <option value="">All Status</option>
+                <option value="Enquiry">Enquiry</option>
+                <option value="Suspect">Suspect</option>
+                <option value="Prospect">Prospect</option>
+                <option value="Leadclosed">Leadclosed</option>
+            </select>
+            
+            <button onclick="promptExport()" style="margin-left: 20px;">Export Data</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <button onclick="window.location.href='delete.html'">View Deleted Customers</button> 
+            <input type="text" id="searchInput" placeholder="Search any detail...">
+            <button onclick="searchCustomer()">Search</button>
+            <button onclick="exportGoldData()" style="margin-left: 10px;">Export JSON</button>
+            <div id="pagination" class="pagination"></div>
+        </div>
+
+        <!-- Customer Table -->
+        <div class="table-section">
+            <div class="table-container">
+                <table id="customerTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Contact No</th>
+                        <th>Location</th>
+                        <th>Occupation</th>
+                        <th>Gender</th>
+                        <th>Purchase Date</th>
+                        <th>Bank</th>
+                        <th>Item</th>
+                        <th>Gross Weight</th>
+                        <th>Net Weight</th>
+                        <th>Amount Paid to Bank</th>
+                        <th>Amount Paid to Customer</th>
+                        <th>Actual Tarugu</th>
+                        <th>Gold After Melt</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customerList">
+                    <!-- Customer data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+     
+    <!-- Image View Modal -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeImageModal()">&times;</span>
+            <img class="modal-image" id="modalImage">
+        </div>
+    </div>
+</div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+let filteredCustomers = [];
+let currentPage = 1;
+const itemsPerPage = 20;
+let editingDocuments = {}; // Added to track document changes during editing
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!localStorage.getItem('customers')) {
+        localStorage.setItem('customers', JSON.stringify([]));
+    }
+    customers = JSON.parse(localStorage.getItem('customers')) || [];
+    console.log("Loaded Customers:", customers); // Debugging line
+    applyFilters();
+});
+
+function addCustomer() {
+    const fileInput = document.getElementById('document');
+    const files = Array.from(fileInput.files).slice(0, 10);
+    const entryDate = new Date();
+
+    const handleCustomerCreation = (documents = []) => {
+        const customer = {
+            id: Date.now(),
+            name: document.getElementById('customerName').value,
+            ContactNo: document.getElementById('ContactNo').value,
+            purchaseDate: document.getElementById('purchaseDate').value,
+            location: document.getElementById('location').value,
+            occupation: document.getElementById('occupation').value,
+            gender: document.getElementById('gender').value,
+            bank: document.getElementById('bank').value,
+            item: document.getElementById('item').value,
+            GrossWeight: document.getElementById('GrossWeight').value,
+            NetWeight: document.getElementById('NetWeight').value,
+            amountPaidToBank: document.getElementById('amountPaidToBank').value,
+            amountPaidToCustomer: document.getElementById('amountPaidToCustomer').value,
+            actualTarugu: document.getElementById('actualTarugu').value,
+            goldAfterMelt: document.getElementById('goldAfterMelt').value,
+            documents: documents,
+            status: document.getElementById('status').value,
+            entryDate: entryDate.getTime()
+        };
+
+        customers.unshift(customer);
+        localStorage.setItem('customers', JSON.stringify(customers));
+        applyFilters();
+        clearForm();
+        alert("Customer added successfully!");
+    };
+
+    if (files.length > 0) {
+        const documents = [];
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                documents.push({
+                    data: e.target.result,
+                    name: file.name
+                });
+                if (documents.length === files.length) {
+                    handleCustomerCreation(documents);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    } else {
+        handleCustomerCreation();
+    }
+}
+
+function clearForm() {
+    document.getElementById('customerName').value = '';
+    document.getElementById('ContactNo').value = '';
+    document.getElementById('purchaseDate').value = '';
+    document.getElementById('location').value = '';
+    document.getElementById('occupation').value = '';
+    document.getElementById('gender').value = 'Male';
+    document.getElementById('bank').value = '';
+    document.getElementById('item').value = '';
+    document.getElementById('GrossWeight').value = '';
+    document.getElementById('NetWeight').value = '';
+    document.getElementById('amountPaidToBank').value = '';
+    document.getElementById('amountPaidToCustomer').value = '';
+    document.getElementById('actualTarugu').value = '';
+    document.getElementById('goldAfterMelt').value = '';
+    document.getElementById('document').value = '';
+    document.getElementById('status').value = 'Enquiry';
+    document.getElementById('fileCount').textContent = '0 files selected';
+}
+
+function updateTable(groupedCustomers) {
+    const tbody = document.getElementById('customerList');
+    tbody.innerHTML = '';
+    let entryCount = 0;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const sortedDates = Object.keys(groupedCustomers).sort((a, b) => 
+        new Date(b) - new Date(a)
+    );
+
+    sortedDates.forEach(dateKey => {
+        const date = new Date(dateKey);
+        const customers = groupedCustomers[dateKey];
+        
+        let groupName;
+        const dateAtMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        
+        if (dateAtMidnight.getTime() === today.getTime()) {
+            groupName = "Today's Entries";
+        } else if (dateAtMidnight.getTime() === yesterday.getTime()) {
+            groupName = "Yesterday's Entries";
+        } else {
+            groupName = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) + " Entries";
+        }
+
+        tbody.innerHTML += `
+            <tr class="date-group-header">
+                <td colspan="18" style="background:#e8f5e9; padding:12px; font-weight:bold">
+                    ${groupName}
+                </td>
+            </tr>
+        `;
+
+        customers.forEach(customer => {
+            entryCount++;
+            const customerDate = new Date(customer.entryDate);
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${(currentPage - 1) * itemsPerPage + entryCount}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.ContactNo}</td>
+                    <td>${customer.location}</td>
+                    <td>${customer.occupation}</td>
+                    <td>${customer.gender}</td>
+                    <td>${new Date(customer.purchaseDate).toLocaleDateString()}</td>
+                    <td>${customer.bank}</td>
+                    <td>${customer.item}</td>
+                    <td>${customer.GrossWeight}</td>
+                    <td>${customer.NetWeight}</td>
+                    <td>${customer.amountPaidToBank}</td>
+                    <td>${customer.amountPaidToCustomer}</td>
+                    <td>${customer.actualTarugu}</td>
+                    <td>${customer.goldAfterMelt}</td>
+                    <td>
+                        <div style="position:relative">
+                            <button class="action-button" onclick="toggleDocsViewMode(this)" 
+                                    data-tooltip="View Documents">
+                                <img src="https://img.icons8.com/ios-glyphs/30/visible.png" 
+                                    class="action-icon">
+                            </button>
+                            <span class="file-count">
+                                (${customer.documents?.length || 0})
+                            </span>
+                            <div class="doc-popup">
+                                <span class="close-docs" 
+                                    onclick="closeDocs(this.parentElement)">×</span>
+                                <ul class="doc-list">
+                                    ${(customer.documents || []).map((doc, i) => `
+                                    <li>
+                                        <span>${doc.name}</span>
+                                        <button class="action-button" 
+                                                onclick="viewImage('${doc.data}')">
+                                            <img src="https://img.icons8.com/ios-glyphs/20/visible.png" 
+                                                class="action-icon">
+                                        </button>
+                                    </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${customer.status}</td>
+                    <td class="actions-cell">
+                        <button class="action-button" 
+                                onclick="enableEdit(${customer.id}, this)" 
+                                data-tooltip="Edit">
+                            <img src="https://img.icons8.com/ios-glyphs/30/edit--v1.png" 
+                                class="action-icon">
+                        </button>
+                        <button class="action-button" 
+                                onclick="deleteCustomer(${customer.id})" 
+                                data-tooltip="Delete">
+                            <img src="https://img.icons8.com/ios-glyphs/30/trash.png" 
+                                class="action-icon">
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    });
+}
+
+function validateFiles(input) {
+    if (input.files.length > 10) {
+        alert('Maximum 10 files allowed');
+        input.value = '';
+    }
+    document.getElementById('fileCount').textContent = `${input.files.length} files selected`;
+}
+
+function applyFilters() {
+    // Always get fresh data from localStorage
+    customers = JSON.parse(localStorage.getItem('customers')) || [];
+    
+    // Get filter values
+    const nameFilter = document.getElementById('filterName').value.toLowerCase();
+    const fromDate = document.getElementById('filterPurchaseDate').value;
+    const toDate = document.getElementById('filterSellDate').value;
+    const minAmount = parseFloat(document.getElementById('filterMinAmount').value) || 0;
+    const maxAmount = parseFloat(document.getElementById('filterMaxAmount').value) || Infinity;
+    const statusFilter = document.getElementById('filterStatus').value;
+
+    // Apply filters
+    filteredCustomers = customers.filter(customer => {
+        const purchaseDate = new Date(customer.purchaseDate);
+        const fromDateObj = fromDate ? new Date(fromDate) : null;
+        const toDateObj = toDate ? new Date(toDate) : null;
+        const amount = parseFloat(customer.amountPaidToBank) || 0;
+
+        return (
+            customer.name.toLowerCase().includes(nameFilter) &&
+            (!fromDateObj || purchaseDate >= fromDateObj) &&
+            (!toDateObj || purchaseDate <= toDateObj) &&
+            amount >= minAmount &&
+            amount <= maxAmount &&
+            (!statusFilter || customer.status === statusFilter)
+        );
+    });
+
+    // Group customers by date
+    const groupedAll = {};
+    filteredCustomers.forEach(customer => {
+        const customerDate = new Date(customer.entryDate);
+        const dateKey = new Date(customerDate.getFullYear(), 
+                                customerDate.getMonth(), 
+                                customerDate.getDate()).toISOString();
+        
+        if (!groupedAll[dateKey]) {
+            groupedAll[dateKey] = [];
+        }
+        groupedAll[dateKey].push(customer);
+    });
+
+    // Sort dates descending
+    const sortedDates = Object.keys(groupedAll).sort((a, b) => 
+        new Date(b) - new Date(a)
+    );
+
+    // Flatten sorted groups
+    const allEntries = sortedDates.flatMap(date => groupedAll[date]);
+
+    // Pagination
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedEntries = allEntries.slice(start, end);
+
+    // Create grouped structure for paginated entries
+    const groupedPaginated = {};
+    paginatedEntries.forEach(customer => {
+        const dateKey = new Date(customer.entryDate).toISOString().split('T')[0];
+        if (!groupedPaginated[dateKey]) {
+            groupedPaginated[dateKey] = [];
+        }
+        groupedPaginated[dateKey].push(customer);
+    });
+
+    // Update UI
+    updateTable(groupedPaginated);
+    updatePagination(Math.ceil(allEntries.length / itemsPerPage));
+}
+
+function updatePagination(totalPages) {
+    const paginationDiv = document.getElementById('pagination');
+    paginationDiv.innerHTML = '';
+
+    const prevButton = document.createElement('button');
+    prevButton.className = 'page-button arrow';
+    prevButton.innerHTML = '◀';
+    prevButton.disabled = currentPage === 1;
+    prevButton.onclick = () => changePage(-1);
+    paginationDiv.appendChild(prevButton);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = `page-button ${i === currentPage ? 'active-page' : ''}`;
+        pageButton.textContent = i;
+        pageButton.onclick = () => {
+            currentPage = i;
+            applyFilters();
+        };
+        paginationDiv.appendChild(pageButton);
+    }
+
+    const nextButton = document.createElement('button');
+    nextButton.className = 'page-button arrow';
+    nextButton.innerHTML = '▶';
+    nextButton.disabled = currentPage === totalPages;
+    nextButton.onclick = () => changePage(1);
+    paginationDiv.appendChild(nextButton);
+}
+
+function changePage(direction) {
+    const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+    currentPage = Math.max(1, Math.min(totalPages, currentPage + direction));
+    applyFilters();
+}
+
+function searchCustomer() {
+    currentPage = 1;
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (!searchQuery) {
+        applyFilters();
+        return;
+    }
+
+    filteredCustomers = customers.filter(customer => {
+        return Object.entries(customer).some(([key, value]) => {
+            if (['id', 'documents', 'entryDate'].includes(key)) return false;
+            
+            if (typeof value === 'number') {
+                return value.toString().includes(searchQuery);
+            }
+            
+            if (typeof value === 'string') {
+                return value.toLowerCase().includes(searchQuery);
+            }
+            
+            if (key === 'purchaseDate') {
+                return new Date(value).toLocaleDateString().includes(searchQuery);
+            }
+            
+            return false;
+        });
+    });
+
+    const nameFilter = document.getElementById('filterName').value.toLowerCase();
+    const statusFilter = document.getElementById('filterStatus').value;
+    
+    filteredCustomers = filteredCustomers.filter(customer => {
+        return customer.name.toLowerCase().includes(nameFilter) &&
+            (!statusFilter || customer.status === statusFilter);
+    });
+
+    updateTable(groupCustomersByDate(filteredCustomers));
+    updatePagination(Math.ceil(filteredCustomers.length / itemsPerPage));
+}
+
+function groupCustomersByDate(customersArray) {
+    const grouped = {};
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    customersArray.forEach(customer => {
+        const customerDate = new Date(customer.entryDate);
+        const dateKey = new Date(customerDate.getFullYear(), customerDate.getMonth(), customerDate.getDate()).toISOString();
+        
+        if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+        }
+        grouped[dateKey].push(customer);
+    });
+
+    return grouped;
+}
+
+function promptExport() {
+    const format = prompt("Enter export format (Excel or PDF):").toLowerCase();
+    if (format === 'excel') {
+        exportToExcel();
+    } else if (format === 'pdf') {
+        exportToPDF();
+    } else {
+        alert("Invalid format! Please enter Excel or PDF.");
+    }
+}
+
+function exportToExcel() {
+    const data = filteredCustomers.map(customer => ({
+        'Name': customer.name,
+        'Contact No': customer.ContactNo,
+        'Location': customer.location,
+        'Occupation': customer.occupation,
+        'Gender': customer.gender,
+        'Purchase Date': customer.purchaseDate,
+        'Bank': customer.bank,
+        'Item': customer.item,
+        'Total Items': customer.GrossWeight,
+        'Tarugu Deducted': customer.NetWeight,
+        'Amount Paid to Bank': customer.amountPaidToBank,
+        'Amount Paid to Customer': customer.amountPaidToCustomer,
+        'Actual Tarugu': customer.actualTarugu,
+        'Gold After Melt': customer.goldAfterMelt,
+        'Document': customer.documentData,
+        'Status': customer.status
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Customers");
+    XLSX.writeFile(wb, "customers.xlsx");
+}
+
+function exportToPDF() {
+    const doc = new jsPDF();
+    const columns = [
+        { title: "Name", dataKey: "name" },
+        { title: "Contact No", dataKey: "Contact No" },
+        { title: "Location", dataKey: "location" },
+        { title: "Occupation", dataKey: "occupation" },
+        { title: "Gender", dataKey: "gender" },
+        { title: "Purchase Date", dataKey: "purchaseDate" },
+        { title: "Bank", dataKey: "bank" },
+        { title: "Item", dataKey: "item" },
+        { title: "Total Items", dataKey: "GrossWeight" },
+        { title: "Tarugu Deducted", dataKey: "NetWeight" },
+        { title: "Amount Paid to Bank", dataKey: "amountPaidToBank" },
+        { title: "Amount Paid to Customer", dataKey: "amountPaidToCustomer" },
+        { title: "Actual Tarugu", dataKey: "actualTarugu" },
+        { title: "Gold After Melt", dataKey: "goldAfterMelt" },
+        { title: "Document", dataKey: "documentData" },
+        { title: "Status", dataKey: "status" }
+    ];
+
+    const rows = filteredCustomers.map(customer => ({
+        name: customer.name,
+        ContactNo: customer.ContactNo,
+        location: customer.location,
+        occupation: customer.occupation,
+        gender: customer.gender,
+        purchaseDate: customer.purchaseDate,
+        bank: customer.bank,
+        item: customer.item,
+        GrossWeight: customer.GrossWeight,
+        NetWeight: customer.NetWeight,
+        amountPaidToBank: customer.amountPaidToBank,
+        amountPaidToCustomer: customer.amountPaidToCustomer,
+        actualTarugu: customer.actualTarugu,
+        goldAfterMelt: customer.goldAfterMelt,
+        documentData: customer.documentData,
+        status: customer.status
+    }));
+    doc.autoTable({
+        head: [columns.map(col => col.title)],
+        body: rows.map(row => columns.map(col => row[col.dataKey]))
+    });
+
+    doc.save("Customers Details.pdf");
+}
+
+function exportGoldData() {
+    const customers = JSON.parse(localStorage.getItem('customers')) || [];
+    const dataStr = JSON.stringify(customers, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `gold_customers_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById("mySidebar");
+    sidebar.classList.toggle('open');
+}
+
+function deleteCustomer(customerId) {
+    if (confirm("Are you sure you want to permanently delete this customer?")) {
+        // Get current customers from localStorage
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        
+        // Find customer to delete
+        const customerIndex = customers.findIndex(c => c.id === customerId);
+        
+        if (customerIndex === -1) {
+            alert("Customer not found!");
+            return;
+        }
+
+        // Remove from main customers array
+        const [deletedCustomer] = customers.splice(customerIndex, 1);
+        
+        // Update localStorage immediately
+        localStorage.setItem('customers', JSON.stringify(customers));
+        
+        // Add to deleted customers archive
+        const deletedCustomers = JSON.parse(localStorage.getItem('deletedCustomers')) || [];
+        deletedCustomers.push({
+            ...deletedCustomer,
+            deletionDate: new Date().toISOString()
+        });
+        localStorage.setItem('deletedCustomers', JSON.stringify(deletedCustomers));
+
+        // Refresh the display
+        applyFilters();
+        alert("Customer permanently deleted!");
+    }
+}
+
+function enableEdit(customerId, button) {
+    const row = button.closest('tr');
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) return alert("Customer not found!");
+    
+    editingDocuments[customerId] = { added: [], deleted: [] };
+    
+    row.querySelectorAll('td:not(:first-child):not(:last-child)').forEach((cell, index) => {
+        const input = createInputForCell(index, customer);
+        cell.innerHTML = '';
+        cell.appendChild(input);
+    });
+
+    // Documents cell handling
+    const docsCell = row.cells[15];
+    docsCell.innerHTML = createDocumentsEditor(customerId, customer);
+
+    // Update save button
+    button.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/save--v1.png" class="action-icon">`;
+    button.onclick = () => saveEdit(customerId, row);
+}
+
+function createInputForCell(index, customer) {
+    switch(index) {
+        case 0: // Name (1st editable column)
+            return createTextInput(customer.name);
+        case 1: // Contact No
+            return createTextInput(customer.ContactNo);
+        case 2: // Location
+            return createTextInput(customer.location);
+        case 3: // Occupation
+            return createTextInput(customer.occupation);
+        case 4: // Gender
+            return createSelect(['Male', 'Female', 'Other'], customer.gender);
+        case 5: // Purchase Date
+            return createDateInput(customer.purchaseDate);
+        case 6: // Bank
+            return createTextInput(customer.bank);
+        case 7: // Item
+            return createTextInput(customer.item);
+        case 8: // Gross Weight
+            return createNumberInput(customer.GrossWeight);
+        case 9: // Net Weight
+            return createNumberInput(customer.NetWeight);
+        case 10: // Amount Paid to Bank
+            return createNumberInput(customer.amountPaidToBank);
+        case 11: // Amount Paid to Customer
+            return createNumberInput(customer.amountPaidToCustomer);
+        case 12: // Actual Tarugu
+            return createNumberInput(customer.actualTarugu);
+        case 13: // Gold After Melt
+            return createNumberInput(customer.goldAfterMelt);
+        case 14: // Document (handled separately)
+            return document.createTextNode(''); // Placeholder
+        case 15: // Status (corrected index)
+            return createSelect(['Enquiry', 'Suspect', 'Prospect', 'Leadclosed'], customer.status);
+        default:
+            return createTextInput('');
+    }
+}
+
+function createSelect(options, selected) {
+    const select = document.createElement('select');
+    options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        if (opt === selected) option.selected = true;
+        select.appendChild(option);
+    });
+    return select;
+}
+
+function createDateInput(value) {
+    const input = document.createElement('input');
+    input.type = 'date';
+    input.value = value;
+    return input;
+}
+
+function createTextInput(value) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = value || '';
+    return input;
+}
+
+function createNumberInput(value) {
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.value = value || '';
+    return input;
+}
+
+function createDocumentsEditor(customerId, customer) {
+    return `<div style="position:relative" data-customer="${customerId}">
+    <input type="file" multiple 
+           onchange="handleDocumentUpload(this, ${customerId})"
+           style="margin-bottom:8px">
+    
+    <button class="doc-view-btn" onclick="toggleDocs(this)">
+        <img src="https://img.icons8.com/ios-glyphs/30/visible.png" 
+             class="action-icon" alt="View Documents">
+        <span class="file-count">(${customer.documents?.length || 0})</span>
+    </button>
+    
+    <div class="doc-popup" style="display:none">
+        <span class="close-docs" onclick="closeDocs(this.parentElement)">×</span>
+        <ul class="doc-list">
+            ${(customer.documents || []).map((doc, i) => `
+            <li>
+                <span>${doc.name}</span>
+                <button class="action-button" 
+                        onclick="viewImage('${doc.data}')">
+                    <img src="https://img.icons8.com/ios-glyphs/20/visible.png" 
+                         class="action-icon">
+                </button>
+                <button class="delete-doc" 
+                    onclick="removeDocument(${customerId}, ${i})">
+                ×
+            </button>
+            </li>
+            `).join('')}
+        </ul>
+    </div>
+</div>`;
+}
+
+function toggleEditDocuments(customerId) {
+  const popup = document.getElementById(`edit-docs-${customerId}`);
+  if (popup) {
+    popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    
+    // Close other open popups
+    document.querySelectorAll('.doc-popup').forEach(otherPopup => {
+      if (otherPopup.id !== `edit-docs-${customerId}`) {
+        otherPopup.style.display = 'none';
+      }
+    });
+  }
+}
+
+function closeEditDocs(customerId) {
+  document.getElementById(`edit-docs-${customerId}`).style.display = 'none';
+}
+
+function createDocumentList(docs, editable, customerId) {
+    return `<ul class="doc-list">
+        ${docs.map((doc, i) => `
+            <li>
+                <span>${doc.name}</span>
+                ${editable ? `
+                <button onclick="removeDocument(${customerId}, ${i})"
+                        class="delete-doc">×</button>
+                ` : `
+                <button onclick="viewImage('${doc.data}')"
+                        class="view-doc">👁️</button>
+                `}
+            </li>
+        `).join('')}
+    </ul>`;
+}
+
+function toggleDocumentDeletion(customerId, docIndex) {
+    const staging = editingDocuments[customerId];
+    const index = staging.deleted.indexOf(docIndex);
+    if (index === -1) {
+        staging.deleted.push(docIndex);
+    } else {
+        staging.deleted.splice(index, 1);
+    }
+}
+
+function stageNewDocuments(input, customerId) {
+    const files = Array.from(input.files);
+    const staging = editingDocuments[customerId];
+    if (!staging) return;
+    staging.added = files.slice(0, 10 - (staging.deleted?.length || 0));
+}
+
+function saveEdit(customerId, row) {
+    if (!confirm('Do you want to save these changes?')) {
+        return;
+    }
+    
+    const customerIndex = customers.findIndex(c => c.id === customerId);
+    const customer = customers[customerIndex];
+    const cells = row.cells;
+
+    // Update all fields
+    customer.name = cells[1].querySelector('input').value;
+    customer.ContactNo = cells[2].querySelector('input').value;
+    customer.location = cells[3].querySelector('input').value;
+    customer.occupation = cells[4].querySelector('input').value;
+    customer.gender = cells[5].querySelector('select').value;
+    customer.purchaseDate = cells[6].querySelector('input').value;
+    customer.bank = cells[7].querySelector('input').value;
+    customer.item = cells[8].querySelector('input').value;
+    customer.GrossWeight = cells[9].querySelector('input').value;
+    customer.NetWeight = cells[10].querySelector('input').value;
+    customer.amountPaidToBank = cells[11].querySelector('input').value;
+    customer.amountPaidToCustomer = cells[12].querySelector('input').value;
+    customer.actualTarugu = cells[13].querySelector('input').value;
+    customer.goldAfterMelt = cells[14].querySelector('input').value;
+    customer.status = cells[16].querySelector('select').value;
+
+    // Process document changes
+    const staging = editingDocuments[customerId];
+    staging.deleted.sort((a,b) => b-a).forEach(index => {
+        customer.documents.splice(index, 1);
+    });
+    
+    if (staging.added.length > 0) {
+        Promise.all(staging.added.map(readFile)).then(newDocs => {
+            customer.documents.push(...newDocs);
+            finalizeSave();
+        });
+    } else {
+        finalizeSave();
+    }
+
+    function finalizeSave() {
+        localStorage.setItem('customers', JSON.stringify(customers));
+        applyFilters();
+        delete editingDocuments[customerId];
+    }
+}
+
+function readFile(file) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ data: e.target.result, name: file.name });
+        reader.readAsDataURL(file);
+    });
+}
+
+function viewImage(imageData) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    
+    // Clear previous image
+    modalImg.src = '';
+    
+    // Handle different data types
+    if (imageData.startsWith('data:')) {
+        modalImg.src = imageData;
+    } else if (imageData instanceof Blob) {
+        modalImg.src = URL.createObjectURL(imageData);
+    } else {
+        console.error('Unsupported document format:', imageData);
+        return;
+    }
+    
+    modal.style.display = 'block';
+    
+    // Close modal on background click
+    modal.onclick = function(e) {
+        if (e.target === modal) closeImageModal();
+    };
+}
+
+function toggleDocsViewMode(button) {
+    // Find the closest container and then the popup
+    const container = button.closest('td');
+    const popup = container.querySelector('.doc-popup');
+    
+    // Close all other popups
+    document.querySelectorAll('.doc-popup').forEach(otherPopup => {
+        if (otherPopup !== popup) otherPopup.style.display = 'none';
+    });
+    
+    // Toggle current popup
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+    
+    // Add click listener to close when clicking outside
+    setTimeout(() => {
+        document.addEventListener('click', function outsideClickListener(e) {
+            if (!popup.contains(e.target) && e.target !== button) {
+                popup.style.display = 'none';
+                document.removeEventListener('click', outsideClickListener);
+            }
+        });
+    }, 0);
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+    URL.revokeObjectURL(document.getElementById('modalImage').src);
+}
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'customers') {
+        customers = JSON.parse(localStorage.getItem('customers')) || [];
+        applyFilters();
+    }
+});
+
+function toggleDocs(button) {
+    // Find the closest container and then the popup
+    const container = button.closest('[data-customer]');
+    const popup = container.querySelector('.doc-popup');
+    
+    // Close all other popups
+    document.querySelectorAll('.doc-popup').forEach(otherPopup => {
+        if (otherPopup !== popup) otherPopup.style.display = 'none';
+    });
+    
+    // Toggle current popup
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+
+function deleteStagedDocuments(customerId) {
+    const staging = editingDocuments[customerId];
+    if (!staging) return;
+    
+    staging.deleted = [];
+    const checkboxes = document.querySelectorAll(`input[type="checkbox"]:checked`);
+    checkboxes.forEach(checkbox => {
+        const docIndex = parseInt(checkbox.id.split('-')[1]);
+        staging.deleted.push(docIndex);
+    });
+}
+
+// New removeDocument function
+function removeDocument(customerId, docIndex) {
+    const staging = editingDocuments[customerId];
+    if (!staging.deleted.includes(docIndex)) {
+        staging.deleted.push(docIndex);
+    }
+    
+    // Visual feedback
+    const container = document.querySelector(`[data-customer="${customerId}"]`);
+    const li = container.querySelectorAll('.doc-list li')[docIndex];
+    li.style.textDecoration = 'line-through';
+    li.style.opacity = '0.6';
+    
+    // Update file count
+    const fileCount = container.querySelector('.file-count');
+    const remaining = container.querySelectorAll('.doc-list li:not([style])').length;
+    fileCount.textContent = `(${remaining})`;
+}
+
+function handleDocumentUpload(input, customerId) {
+    const staging = editingDocuments[customerId];
+    const files = Array.from(input.files);
+    
+    // Read new files
+    files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            staging.added.push({
+                data: e.target.result,
+                name: file.name
+            });
+            updateDocumentListUI(customerId);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function updateDocumentListUI(customerId) {
+    const container = document.querySelector(`[data-customer="${customerId}"]`);
+    const docList = container.querySelector('.doc-list');
+    const staging = editingDocuments[customerId];
+    
+    // Clear existing list
+    docList.innerHTML = '';
+    
+    // Show original - deleted + added
+    customers.find(c => c.id === customerId).documents
+        .forEach((doc, i) => {
+            if (!staging.deleted.includes(i)) {
+                docList.innerHTML += `
+                    <li>
+                        <span>${doc.name}</span>
+                        <div style="display:flex;gap:8px">
+                            <button onclick="viewImage('${doc.data}')">👁️</button>
+                            <button class="delete-doc" 
+                                    onclick="removeDocument(${customerId}, ${i})">
+                                ×
+                            </button>
+                        </div>
+                    </li>
+                `;
+            }
+        });
+    
+    // Add new files
+    staging.added.forEach(doc => {
+        docList.innerHTML += `
+            <li style="color:green">
+                <span>${doc.name} (new)</span>
+                <div style="display:flex;gap:8px">
+                    <button onclick="viewImage('${doc.data}')">👁️</button>
+                </div>
+            </li>
+        `;
+    });
+}
+
+function closeDocs(popup) {
+    popup.style.display = 'none';
+}
+
+// Add click listener for document
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.doc-popup') && 
+        !e.target.closest('.doc-view-btn') &&
+        !e.target.closest('.action-button[data-tooltip="View Documents"]')) {
+        document.querySelectorAll('.doc-popup').forEach(popup => {
+            popup.style.display = 'none';
+        });
+    }
+});
+    </script>
+</body>
+</html>

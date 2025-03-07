@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: none;
+            margin: 15px;
+        }
+
+        .header-container {
+            background-color: #FFD700; /* Gold background */
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #000000;
+            margin: 0;
+            padding: 8px 0;
+        }
+
+        .icon-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .top-icon {
+            width: 20px;
+            height: 20px;
+            transition: opacity 0.3s;
+        }
+
+        .top-icon:hover {
+            transform: scale(1.1);
+        }
+
+        main {
+            padding: 0px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 40px 40px;
+            width: 60%;
+            max-width: 500px;
+            border-radius: 5px;
+            position: relative;
+            /* Modify animation for vertical centering */
+            animation: modalOpen 0.3s ease-out;
+        }
+
+        @keyframes modalOpen {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 2px rgba(76,175,80,0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        a {
+            color: #0645ad;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #8beed5;
+            color: #fff;
+            height: 100vh;
+            padding: 15px;
+            transition: transform 0.3s ease;
+            transform: translateX(-250px);
+            border-radius: 8px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            border: none;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #070707;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #353333;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #caf7cc;
+        }
+
+        .openbtn {
+            font-size: 20px;
+            cursor: pointer;
+            background-color: transparent;
+            color: rgb(3, 3, 3);
+            padding: 5px 5px;
+            border: none;
+        }
+
+        .logout-btn {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn img {
+            width: 100%;
+            height: 100%;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Align items vertically in the center */
+            gap: 10px;
+            width: 100%; /* Add 2px space between the search bar and button */
+        }
+
+        .search-bar input {
+            padding: 10px 12px; 
+            width: 200px; /* Adjust width as needed */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            height: 20px; 
+            margin: 0; /* Remove any default margin */
+        }
+
+        .search-bar button {
+            padding: 10px 20px; 
+            height: 40px; 
+            border-radius: 8px;
+            margin: 0; /* Remove any default margin */
+            background-color: #4CAF50; /* Match the button color */
+            color: white; /* Text color */
+            border: none; /* Remove border */
+            cursor: pointer; /* Add pointer cursor */
+        }
+
+        .search-bar button:hover {
+            background-color: #45a049; 
+        }
+        .pagination {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+            align-items: center;
+        }
+
+        .page-button {
+            padding: 3px 8px; /* Reduced padding for smaller buttons */
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            color: black;
+            font-size: 12px; /* Smaller font size */
+        }
+
+        .page-button:hover {
+            background-color: #FFD700;
+            color: black;
+        }
+
+        .active-page {
+            background-color: #FFD700 !important;
+            font-weight: bold;
+            color: black;
+        }
+
+        .page-button.arrow {
+            padding: 3px 8px; /* Reduced padding for smaller arrow buttons */
+            background-color: #f0f0f0;
+            font-size: 12px; /* Smaller font size for arrows */
+        }
+
+        .page-button.arrow:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <button class="openbtn" onclick="toggleSidebar()">☰</button>
+            <h1>Customer Dashboard</h1>
+            <div class="icon-group">
+                <a href="login.html" title="Logout" class="logout-btn">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/logout-rounded.png" alt="Logout">
+                </a>
+            </div>
+        </div>
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">×</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="gold.html">Edit Customer</a>
+            <a href="delete.html">Deleted Customer</a>
+            <a href="settings.html">Settings</a>
+        </div>
+        <main>
+            <div class="button-group">
+                <button id="addCustomerBtn">Edit Customer</button>
+                <button id="newCustomerBtn">New Customer</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search any detail...">
+                <button onclick="searchCustomer()">Search</button>
+                <button onclick="exportDashboardData()" style="margin-left: 10px;">Export Data</button>
+                <div id="pagination" class="pagination"></div>
+            </div>
+
+            <!-- New Customer Modal -->
+            <div id="customerModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeCustomerModal()">&times;</span>
+                    <h2>New Customer Entry</h2>
+                    <form id="customerForm">
+                        <div class="form-group">
+                            <label>Customer Name:</label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact No:</label>
+                            <input type="tel" id="customerContact No" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Location:</label>
+                            <input type="text" id="customerLocation" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Occupation:</label>
+                            <input type="text" id="customerOccupation" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select id="customerStatus">
+                                <option value="Enquiry">Enquiry</option>
+                                <option value="Suspect">Suspect</option>
+                                <option value="Prospect">Prospect</option>
+                                <option value="Leadclosed">LeadClose</option>
+                            </select>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit">Save</button>
+                            <button type="button" onclick="closeCustomerModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Customer Name</th>
+                        <th>Contact No</th>
+                        <th>Location</th>
+                        <th>Occupation</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="dashboardCustomerList">
+                    <!-- Data populated dynamically -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <script>
+        // Authentication check
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (!loggedInUser) window.location.href = 'login.html';
+    
+        // Customer Modal Handling
+        const customerModal = document.getElementById('customerModal');
+        const customerForm = document.getElementById('customerForm');
+    
+        document.getElementById('newCustomerBtn').addEventListener('click', () => {
+            customerModal.style.display = 'flex';
+        });
+    
+        function closeCustomerModal() {
+            customerModal.style.display = 'none';
+            customerForm.reset();
+        }
+    
+        customerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (confirm("Are you sure you want to save this customer?")) {
+                const newCustomer = {
+                    id: Date.now(),
+                    name: document.getElementById('customerName').value,
+                    ContactNo: document.getElementById('customerContact No').value,
+                    location: document.getElementById('customerLocation').value,
+                    occupation: document.getElementById('customerOccupation').value,
+                    status: document.getElementById('customerStatus').value,
+                    purchaseDate: new Date().toISOString(),
+                    entryDate: new Date().toISOString()
+                };
+    
+                const customers = JSON.parse(localStorage.getItem('customers')) || [];
+                customers.push(newCustomer);
+                localStorage.setItem('customers', JSON.stringify(customers));
+    
+                closeCustomerModal();
+                renderDashboard();
+                alert('Customer saved successfully!');
+            }
+        });
+    
+        // Pagination variables
+        let currentPage = 1;
+        const itemsPerPage = 20;
+    
+        // Render Dashboard with search support
+        function renderDashboard(customersArray) {
+            const customers = customersArray || JSON.parse(localStorage.getItem('customers')) || [];
+            const tbody = document.getElementById('dashboardCustomerList');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+            let allEntries = [];
+    
+            if (searchQuery) {
+                // Search mode: flat list sorted by date
+                allEntries = customers.filter(customer => 
+                    Object.values(customer).some(value => 
+                        String(value).toLowerCase().includes(searchQuery)
+                    )
+                ).sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
+            } else {
+                // Group by date
+                const groupedCustomers = { today: [], yesterday: [], older: {} };
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                customers.forEach(customer => {
+                    const purchaseDate = new Date(customer.purchaseDate);
+                    const compareDate = new Date(purchaseDate);
+                    compareDate.setHours(0, 0, 0, 0);
+
+                    if (compareDate.getTime() === today.getTime()) {
+                        groupedCustomers.today.push(customer);
+                    } else if (compareDate.getTime() === yesterday.getTime()) {
+                        groupedCustomers.yesterday.push(customer);
+                    } else {
+                        const dateKey = compareDate.toISOString().split('T')[0];
+                        if (!groupedCustomers.older[dateKey]) {
+                            groupedCustomers.older[dateKey] = [];
+                        }
+                        groupedCustomers.older[dateKey].push(customer);
+                    }
+                });
+
+                // Sort older entries by date
+                const sortedOlderDates = Object.keys(groupedCustomers.older).sort((a, b) => 
+                    new Date(b) - new Date(a)
+                );
+
+                allEntries = [
+                    ...groupedCustomers.today,
+                    ...groupedCustomers.yesterday,
+                    ...sortedOlderDates.flatMap(date => groupedCustomers.older[date])
+                ];
+            }
+    
+            // Pagination logic
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedEntries = allEntries.slice(start, end);
+    
+            let tableHTML = '';
+            let counter = start + 1;
+    
+            if (searchQuery) {
+                // Flat list
+                paginatedEntries.forEach(customer => {
+                    tableHTML += createTableRow(customer, counter, searchQuery);
+                    counter++;
+                });
+            } else {
+                // Grouped entries
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+    
+                if (paginatedEntries.some(c => new Date(c.purchaseDate).setHours(0,0,0,0) === today.getTime())) {
+                    tableHTML += `<tr><td colspan="6" style="background:#e8f5e9;padding:12px">Today's Entries</td></tr>`;
+                    paginatedEntries.filter(c => new Date(c.purchaseDate).setHours(0,0,0,0) === today.getTime())
+                        .forEach(customer => {
+                            tableHTML += createTableRow(customer, counter, searchQuery);
+                            counter++;
+                        });
+                }
+    
+                if (paginatedEntries.some(c => new Date(c.purchaseDate).setHours(0,0,0,0) === yesterday.getTime())) {
+                    tableHTML += `<tr><td colspan="6" style="background:#e8f5e9;padding:12px">Yesterday's Entries</td></tr>`;
+                    paginatedEntries.filter(c => new Date(c.purchaseDate).setHours(0,0,0,0) === yesterday.getTime())
+                        .forEach(customer => {
+                            tableHTML += createTableRow(customer, counter, searchQuery);
+                            counter++;
+                        });
+                }
+    
+                // Older entries grouped by date
+        const olderGroups = {};
+        paginatedEntries.forEach(customer => {
+            if (new Date(customer.purchaseDate).setHours(0,0,0,0) >= yesterday.getTime()) return;
+            
+            const dateKey = new Date(customer.purchaseDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            if (!olderGroups[dateKey]) {
+                olderGroups[dateKey] = [];
+            }
+            olderGroups[dateKey].push(customer);
+        });
+
+        // Add sorted older entries
+        Object.keys(olderGroups).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+            tableHTML += `<tr><td colspan="6" style="background:#e8f5e9;padding:12px">${date} Entries</td></tr>`;
+            olderGroups[date].forEach(customer => {
+                tableHTML += createTableRow(customer, counter, searchQuery);
+                counter++;
+            });
+        });
+    }
+    
+            tbody.innerHTML = tableHTML;
+            updatePagination(Math.ceil(allEntries.length / itemsPerPage));
+        }
+    
+        function createTableRow(customer, counter, searchQuery) {
+            return `
+                <tr>
+                    <td>${counter}</td>
+                    <td><a href="gold.html?customerId=${customer.id}">${highlightMatch(customer.name, searchQuery)}</a></td>
+                    <td>${highlightMatch(customer.ContactNo, searchQuery)}</td>
+                    <td>${highlightMatch(customer.location, searchQuery)}</td>
+                    <td>${highlightMatch(customer.occupation, searchQuery)}</td>
+                    <td>
+                        <select class="status-select" data-id="${customer.id}">
+                            ${['Enquiry', 'Suspect', 'Prospect', 'Leadclosed'].map(opt => 
+                                `<option ${customer.status === opt ? 'selected' : ''}>${opt}</option>`
+                            ).join('')}
+                        </select>
+                    </td>
+                </tr>
+            `;
+        }
+    
+        function highlightMatch(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+            return String(text).replace(regex, '<mark>$1</mark>');
+        }
+    
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+    
+        // Pagination functions
+        function updatePagination(totalPages) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+    
+            // Previous Arrow
+            const prevButton = document.createElement('button');
+            prevButton.className = 'page-button arrow';
+            prevButton.innerHTML = '◀';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => changePage(-1);
+            paginationDiv.appendChild(prevButton);
+    
+            // Page Numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `page-button ${i === currentPage ? 'active-page' : ''}`;
+                pageButton.textContent = i;
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    renderDashboard();
+                };
+                paginationDiv.appendChild(pageButton);
+            }
+    
+            // Next Arrow
+            const nextButton = document.createElement('button');
+            nextButton.className = 'page-button arrow';
+            nextButton.innerHTML = '▶';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => changePage(1);
+            paginationDiv.appendChild(nextButton);
+        }
+    
+        function changePage(direction) {
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+            const totalPages = Math.ceil(customers.length / itemsPerPage);
+            currentPage = Math.max(1, Math.min(totalPages, currentPage + direction));
+            renderDashboard();
+        }
+    
+        // Search function
+        function searchCustomer() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+            
+            const filtered = customers.filter(customer => {
+                return Object.values(customer).some(value => 
+                    String(value).toLowerCase().includes(searchQuery)
+                );
+            });
+    
+            currentPage = 1;
+            renderDashboard(filtered);
+        }
+    
+        function exportDashboardData() {
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+            const dataStr = JSON.stringify(customers, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `customers_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'customers') {
+                renderDashboard();
+            }
+        });
+    
+        function toggleSidebar() {
+            const sidebar = document.getElementById("mySidebar");
+            sidebar.classList.toggle('open');
+        }
+    
+        document.getElementById('addCustomerBtn').addEventListener('click', () => {
+            window.location.href = 'gold.html';
+        });
+    
+        // Initial data load
+        renderDashboard();
+    </script>
+</body>
+</html>
